@@ -1,38 +1,20 @@
-package com.example.app;
+package com.example;
+import com.example.app.App; 
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+public class AppTest {
+
+    @Test
+    public void testAddNumbers() {
+        int result = App.addNumbers(2, 3);  // Assuming App.addNumbers is defined in your code
+        assertEquals(5, result, "The sum of 2 and 3 should be 5");
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    @Test
+    public void testCondition() {
+        assertTrue(2 > 1, "2 should be greater than 1");
     }
 }
