@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID = '971422678337'
         AWS_CREDENTIALS_ID = 'aws_credentials'
-        AWS_REGION = 'us-east-1' 
+        AWS_REGION = 'us-east-1'
         CLUSTER_NAME = 'comet-eks-cluster'
         ECR_REPOSITORY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/comet-app-repo"
     }
@@ -12,35 +12,33 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-            
                 git 'https://github.com/Infotrend-Inc/COMET-JAVA.git'
             }
         }
 
         stage('Log in to Amazon ECR') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     bat '''
-                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                    aws ecr get-login-password --region %AWS_REGION% | docker login --username AWS --password-stdin %AWS_ACCOUNT_ID%.dkr.ecr.%AWS_REGION%.amazonaws.com
                     '''
                 }
             }
         }
 
-
         stage('Pull Docker image') {
             steps {
                 bat '''
-                docker pull $ECR_REPOSITORY:latest
+                docker pull %ECR_REPOSITORY%:latest
                 '''
             }
         }
 
         stage('Update EKS kubeconfig') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID]]) {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDENTIALS_ID}"]]) {
                     bat '''
-                    aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+                    aws eks update-kubeconfig --region %AWS_REGION% --name %CLUSTER_NAME%
                     '''
                 }
             }
@@ -49,7 +47,7 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 bat '''
-                kubectl set image deployment/java-app java-container=$ECR_REPOSITORY:latest --namespace=your-namespace
+                kubectl set image deployment/java-app java-container=%ECR_REPOSITORY%:latest --namespace=your-namespace
                 kubectl rollout status deployment/java-app --namespace=your-namespace
                 '''
             }
