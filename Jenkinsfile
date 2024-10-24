@@ -20,7 +20,7 @@ pipeline {
         stage('Log in to Amazon ECR') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws_credentials']]) {
-                    sh '''
+                    bat '''
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
                     '''
                 }
@@ -30,7 +30,7 @@ pipeline {
 
         stage('Pull Docker image') {
             steps {
-                sh '''
+                bat '''
                 docker pull $ECR_REPOSITORY:latest
                 '''
             }
@@ -39,7 +39,7 @@ pipeline {
         stage('Update EKS kubeconfig') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDENTIALS_ID]]) {
-                    sh '''
+                    bat '''
                     aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
                     '''
                 }
@@ -48,7 +48,7 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                sh '''
+                bat '''
                 kubectl set image deployment/java-app java-container=$ECR_REPOSITORY:latest --namespace=your-namespace
                 kubectl rollout status deployment/java-app --namespace=your-namespace
                 '''
