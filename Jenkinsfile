@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        AWS_ACCOUNT_ID = '971422678337'
         AWS_CREDENTIALS_ID = 'aws_credentials'
         AWS_REGION = 'us-east-1' 
         CLUSTER_NAME = 'comet-eks-cluster'
