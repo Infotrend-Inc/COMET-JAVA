@@ -25,6 +25,9 @@ jobs:
       - name: Run tests
         run: mvn test
 
+      - name: Run Checkstyle Linting
+        run: mvn checkstyle:check
+        
       # Configure AWS credentials using the AWS CLI action
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
