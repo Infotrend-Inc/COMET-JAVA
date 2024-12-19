@@ -28,7 +28,6 @@ jobs:
       - name: Run Checkstyle Linting
         run: mvn checkstyle:check
         
-      # Configure AWS credentials using the AWS CLI action
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -36,20 +35,39 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Docker Build and Push to ECR
-
       - name: Logs in to Amazon ECR
         id: ecr_login
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Increment Version
+        id: increment_version
+        run: |
+          if [ ! -f VERSION ]; then
+            echo "1.0.0" > VERSION
+          else
+            current_version=$(cat VERSION)
+            IFS='.' read -r -a parts <<< "$current_version"
+            major=${parts[0]}
+            minor=${parts[1]}
+            patch=${parts[2]}
+            patch=$((patch + 1))
+            new_version="$major.$minor.$patch"
+            echo "$new_version" > VERSION
+          fi
+          echo "version=$(cat VERSION)" >> $GITHUB_ENV
+
+      - name: Display New Version
+        run: echo "New version is ${{ env.version }}"
+
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:latest .
+          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ env.version }} .
 
       - name: Tag Docker image
         run: |
-          docker tag ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ github.sha }}
+          docker tag ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ env.version }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:latest
 
       - name: Push Docker image to ECR
         run: |
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ env.version }}
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:latest
