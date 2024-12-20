@@ -10,15 +10,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Step 2: Set up JDK
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
           java-version: 11
           distribution: 'adopt'
 
+      # Step 3: Build and test with Maven
       - name: Build with Maven
         run: mvn clean install
 
@@ -27,7 +30,8 @@ jobs:
 
       - name: Run Checkstyle Linting
         run: mvn checkstyle:check
-        
+
+      # Step 4: Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -35,16 +39,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Logs in to Amazon ECR
-        id: ecr_login
-        uses: aws-actions/amazon-ecr-login@v1
-
+      # Step 5: Increment version
       - name: Increment Version
         id: increment_version
         run: |
           if [ ! -f VERSION ]; then
+            echo "Creating initial version as 1.0.0"
             echo "1.0.0" > VERSION
           else
+            echo "Reading existing version"
             current_version=$(cat VERSION)
             IFS='.' read -r -a parts <<< "$current_version"
             major=${parts[0]}
@@ -56,13 +59,23 @@ jobs:
           fi
           echo "version=$(cat VERSION)" >> $GITHUB_ENV
 
+      # Step 6: Display the new version
       - name: Display New Version
         run: echo "New version is ${{ env.version }}"
 
+      # Step 7: Build Docker image
       - name: Build Docker image
         run: |
           docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ env.version }} .
 
+      # Step 8: Push Docker image
       - name: Push Docker image to ECR
         run: |
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ env.version }}
+
+      # Step 9: Commit updated VERSION file back to repository
+      - name: Commit updated version
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: Bump version to ${{ env.version }}"
+          file_pattern: VERSION
