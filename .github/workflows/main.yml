@@ -19,6 +19,9 @@ jobs:
           java-version: 17
           distribution: 'adopt'
 
+      - name: Set JAVA_HOME
+        run: echo "JAVA_HOME=/opt/hostedtoolcache/Java_Adopt_jdk/17.0.13-11/x64" >> $GITHUB_ENV
+
       - name: Build with Maven
         run: mvn clean install
 
@@ -39,7 +42,7 @@ jobs:
         run: |
           export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
           sonar-scanner --version
-
+      
       - name: Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
