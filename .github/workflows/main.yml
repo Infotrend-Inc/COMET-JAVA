@@ -40,10 +40,11 @@ jobs:
           export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
           sonar-scanner --version
 
-      - name: SonarCloud Analysis
+      - name: Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
           sonar-scanner \
             -Dsonar.projectKey=Infotrend-Inc_COMET-JAVA \
             -Dsonar.organization=Infotrend-Inc \
