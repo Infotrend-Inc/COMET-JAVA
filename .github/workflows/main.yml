@@ -19,8 +19,11 @@ jobs:
           java-version: 17
           distribution: 'adopt'
 
-      - name: Check Java version
-        run: java -version
+      - name: Set up JDK 17 and check Java version
+        run: |
+          export JAVA_HOME=/opt/hostedtoolcache/Java_Adopt_jdk/17.0.13-11/x64
+          export PATH=$JAVA_HOME/bin:$PATH
+          java -version
 
       - name: Build with Maven
         run: mvn clean install
