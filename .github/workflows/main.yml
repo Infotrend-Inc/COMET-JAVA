@@ -28,6 +28,12 @@ jobs:
       - name: Run Checkstyle Linting
         run: mvn checkstyle:check
 
+      - name: Install SonarScanner
+        run: |
+          curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+          unzip sonar-scanner-cli.zip -d $HOME
+          export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
+
       - name: SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -37,7 +43,7 @@ jobs:
             -Dsonar.organization=Infotrend-Inc \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN 
-             
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
