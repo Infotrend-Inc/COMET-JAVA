@@ -27,7 +27,17 @@ jobs:
 
       - name: Run Checkstyle Linting
         run: mvn checkstyle:check
-        
+
+      - name: SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=Infotrend-Inc_COMET-JAVA \
+            -Dsonar.organization=Infotrend-Inc \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN 
+             
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
