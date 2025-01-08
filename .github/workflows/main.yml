@@ -48,6 +48,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           export PATH="$HOME/sonar-scanner-4.8.0.2856-linux/bin:$PATH"
+          export PATH="/opt/hostedtoolcache/Java_Adopt_jdk/17.0.13-11/x64/bin:$PATH"
           sonar-scanner \
             -Dsonar.projectKey=Infotrend-Inc_COMET-JAVA \
             -Dsonar.organization=Infotrend-Inc \
