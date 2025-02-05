@@ -19,12 +19,6 @@ jobs:
           java-version: 11
           distribution: 'adopt'
 
-      - name: Build with Maven
-        run: mvn clean install
-
-      - name: Run tests
-        run: mvn test
-
       - name: Run Checkstyle Linting
         run: mvn checkstyle:check
 
@@ -62,6 +56,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ env.version }} .
+
+      - name: Run Tests Inside Docker Container
+        run: |
+          docker run --rm ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ env.version }} \
+          java -jar /app/app.jar --test  
 
       - name: Push Docker image to ECR
         run: |
