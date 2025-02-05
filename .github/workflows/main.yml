@@ -60,7 +60,7 @@ jobs:
       - name: Run Tests Inside Docker Container
         run: |
           docker run --rm ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/comet-app-repo:${{ env.version }} \
-          java -jar /app/app.jar --test  
+          mvn test
 
       - name: Push Docker image to ECR
         run: |
