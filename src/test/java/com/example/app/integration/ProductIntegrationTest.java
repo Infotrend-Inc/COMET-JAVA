@@ -43,7 +43,7 @@ public class ProductIntegrationTest {
     void testGetProducts() throws Exception {
         mockMvc.perform(get("/api/products"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Test Product"))
+                .andExpect(jsonPath("$[0].name").value("Echo"))
                 .andExpect(jsonPath("$[0].description").value("Test Description"));
     }
 
